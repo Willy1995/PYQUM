@@ -25,7 +25,7 @@ qop_port = None  # Write the QOP port if version < QOP220
 ###################
 # Path to save data
 save_data = False
-save_dir = r"D:\Ke Lab\SynologyDrive\09 Data\Fridge Data\Qubit\20231027_DR2_5XQ\01 Resonator Spectroscopy"
+save_dir = r"C:\Users\ASUS\Documents\GitHub\QM_fitting\data\20231101_DR3_5XQ_AS1201\05 resonator_vs_flux"
 # save_dir = (Path().absolute()/"PYQUM"/"TEST"/"BETAsite"/"QM"/"OPXPlus"/"data")
 
 ############################
@@ -61,16 +61,16 @@ octave_config = octave_declaration(octaves)
 #############################################
 #                  Qubits                   #
 #############################################
-qubit_LO_q1 = (4.200 -0.530) * u.GHz
-qubit_LO_q2 = (4.200 -0.530) * u.GHz
+qubit_LO_q1 = (3.955) * u.GHz
+qubit_LO_q2 = (4.215) * u.GHz
 qubit_LO_q3 = (4.200 -0.530) * u.GHz
 qubit_LO_q4 = (4.200 -0.530) * u.GHz
 qubit_LO_q5 = (4.200 -0.530) * u.GHz
 
 # Qubits IF
 qubit_IF = np.zeros(5)
-qubit_IF[0] = (-347.022) * u.MHz #(4013-0.0088-0.0037 -4200) * u.MHz
-qubit_IF[1] = (471.52 ) * u.MHz #(4156-0.119  -4200) * u.MHz
+qubit_IF[0] = (-80) * u.MHz #(4013-0.0088-0.0037 -4200) * u.MHz
+qubit_IF[1] = (-80) * u.MHz #(4156-0.119  -4200) * u.MHz
 qubit_IF[2] = (-355) * u.MHz
 qubit_IF[3] = (-44.4216-0.032) * u.MHz
 qubit_IF[4] = (-44.4216-0.032) * u.MHz
@@ -222,24 +222,24 @@ g_cz_1_2_q2 = 0.5 * abs(0.5-idle_q2) * gaussian(16, 16/4)
 #############################################
 #                Resonators                 #
 #############################################
-resonator_LO = 6.0 * u.GHz
+resonator_LO = 5.95 * u.GHz
 # Resonators IF
 resonator_IF = np.zeros(5)
-resonator_IF[0] = int((-237) * u.MHz)
-resonator_IF[1] = int((54.5) * u.MHz)
-resonator_IF[2] = int((-124) * u.MHz) 
-resonator_IF[3] = int((142.6) * u.MHz)
-resonator_IF[4] = int((-50.5) * u.MHz)
+resonator_IF[0] = int((-215.5) * u.MHz)
+resonator_IF[1] = int((74) * u.MHz)
+resonator_IF[2] = int((-104.3) * u.MHz) 
+resonator_IF[3] = int((162) * u.MHz)
+resonator_IF[4] = int((-27.8) * u.MHz)
 # Above is for verifying wide-sweep results: -156, -38, 39, 137, 231
 
 # Readout pulse parameters (optimal input for IQ-mixer: 125mV)
 readout_len = 2000
 readout_amp = np.zeros(5)
-readout_amp[0] = 0.05
-readout_amp[1] = 0.05
-readout_amp[2] = 0.05
-readout_amp[3] = 0.05
-readout_amp[4] = 0.05
+readout_amp[0] = 0.008
+readout_amp[1] = 0.0125
+readout_amp[2] = 0.01
+readout_amp[3] = 0.01
+readout_amp[4] = 0.02
 
 # TOF and depletion time
 time_of_flight = 200  # must be a multiple of 4
@@ -320,12 +320,12 @@ config = {
                 2: {"offset": 0.0},  # Q readout line
                 3: {"offset": 0.0},  # I qubit1 XY
                 4: {"offset": 0.0},  # Q qubit1 XY
-                5: {"offset": 0.0},  # I qubit2 XY
-                6: {"offset": 0.0},  # Q qubit2 XY
-                7: {"offset": 0.0},  # I qubit3 XY
-                8: {"offset": 0.0},  # Q qubit3 XY
-                9: {"offset": 0.0},  # I qubit4 XY
-                10: {"offset": 0.0},  # Q qubit4 XY
+                5: {"offset": max_frequency_point1},  # qubit1 Z
+                6: {"offset": max_frequency_point2},  # qubit2 Z
+                7: {"offset": 0.0},  # I qubit2 XY
+                8: {"offset": 0.0},  # Q qubit2 XY
+                9: {"offset": max_frequency_point3},  # qubit3 Z
+                10: {"offset": max_frequency_point4},  # qubit4 Z
             },
             "digital_outputs": {
                 1: {},
@@ -457,10 +457,10 @@ config = {
         },
         "q2_xy": {
             "mixInputs": {
-                "I": ("con1", 5),
-                "Q": ("con1", 6),
+                "I": ("con1", 7),
+                "Q": ("con1", 8),
                 "lo_frequency": qubit_LO_q2,
-                "mixer": "octave_octave1_3",
+                "mixer": "octave_octave1_4",
             },
             "intermediate_frequency": qubit_IF[1],  # frequency at offset ch8 (max freq)
             "operations": {
@@ -474,44 +474,44 @@ config = {
                 "-y90": "-y90_pulse_q2",
             },
         },
-        "q3_xy": {
-            "mixInputs": {
-                "I": ("con1", 7),
-                "Q": ("con1", 8),
-                "lo_frequency": qubit_LO_q3,
-                "mixer": "octave_octave1_4",
-            },
-            "intermediate_frequency": qubit_IF[2],
-            "operations": {
-                "cw": "const_pulse",
-                "saturation": "saturation_pulse",
-                "x180": "x180_pulse_q3",
-                "x90": "x90_pulse_q3",
-                "-x90": "-x90_pulse_q3",
-                "y90": "y90_pulse_q3",
-                "y180": "y180_pulse_q3",
-                "-y90": "-y90_pulse_q3",
-            },
-        },
-        "q4_xy": {
-            "mixInputs": {
-                "I": ("con1", 9),
-                "Q": ("con1", 10),
-                "lo_frequency": qubit_LO_q4,
-                "mixer": "octave_octave1_5",
-            },
-            "intermediate_frequency": qubit_IF[3],
-            "operations": {
-                "cw": "const_pulse",
-                "saturation": "saturation_pulse",
-                "x180": "x180_pulse_q4",
-                "x90": "x90_pulse_q4",
-                "-x90": "-x90_pulse_q4",
-                "y90": "y90_pulse_q4",
-                "y180": "y180_pulse_q4",
-                "-y90": "-y90_pulse_q4",
-            },
-        },
+        # "q3_xy": {
+        #     "mixInputs": {
+        #         "I": ("con1", 7),
+        #         "Q": ("con1", 8),
+        #         "lo_frequency": qubit_LO_q3,
+        #         "mixer": "octave_octave1_4",
+        #     },
+        #     "intermediate_frequency": qubit_IF[2],
+        #     "operations": {
+        #         "cw": "const_pulse",
+        #         "saturation": "saturation_pulse",
+        #         "x180": "x180_pulse_q3",
+        #         "x90": "x90_pulse_q3",
+        #         "-x90": "-x90_pulse_q3",
+        #         "y90": "y90_pulse_q3",
+        #         "y180": "y180_pulse_q3",
+        #         "-y90": "-y90_pulse_q3",
+        #     },
+        # },
+        # "q4_xy": {
+        #     "mixInputs": {
+        #         "I": ("con1", 9),
+        #         "Q": ("con1", 10),
+        #         "lo_frequency": qubit_LO_q4,
+        #         "mixer": "octave_octave1_5",
+        #     },
+        #     "intermediate_frequency": qubit_IF[3],
+        #     "operations": {
+        #         "cw": "const_pulse",
+        #         "saturation": "saturation_pulse",
+        #         "x180": "x180_pulse_q4",
+        #         "x90": "x90_pulse_q4",
+        #         "-x90": "-x90_pulse_q4",
+        #         "y90": "y90_pulse_q4",
+        #         "y180": "y180_pulse_q4",
+        #         "-y90": "-y90_pulse_q4",
+        #     },
+        # },
         # "q5_xy": {
         #     "mixInputs": {
         #         "I": ("con2", 1),
@@ -531,43 +531,43 @@ config = {
         #         "-y90": "-y90_pulse_q5",
         #     },
         # },
-        # "q1_z": {
-        #     "singleInput": {
-        #         "port": ("con2", 5),
-        #     },
-        #     "operations": {
-        #         "const": "const_flux_pulse",
+        "q1_z": {
+            "singleInput": {
+                "port": ("con1", 5),
+            },
+            "operations": {
+                "const": "const_flux_pulse",
 
-        #     },
-        # },
-        # "q2_z": {
-        #     "singleInput": {
-        #         "port": ("con2", 6),
-        #     },
-        #     "operations": {
-        #         "const": "const_flux_pulse",
-        #         # options: gft_cz_pulse_1_2_q2, g_cz_pulse_1_2_q2
-        #         "cz_1_2": "gft_cz_pulse_1_2_q2",
-        #     },
-        # },
-        # "q3_z": {
-        #     "singleInput": {
-        #         "port": ("con2", 7),
-        #     },
-        #     "operations": {
-        #         "const": "const_flux_pulse",
+            },
+        },
+        "q2_z": {
+            "singleInput": {
+                "port": ("con1", 6),
+            },
+            "operations": {
+                "const": "const_flux_pulse",
+                # options: gft_cz_pulse_1_2_q2, g_cz_pulse_1_2_q2
+                "cz_1_2": "gft_cz_pulse_1_2_q2",
+            },
+        },
+        "q3_z": {
+            "singleInput": {
+                "port": ("con1", 9),
+            },
+            "operations": {
+                "const": "const_flux_pulse",
                 
-        #     },
-        # },
-        # "q4_z": {
-        #     "singleInput": {
-        #         "port": ("con2", 8),
-        #     },
-        #     "operations": {
-        #         "const": "const_flux_pulse",
+            },
+        },
+        "q4_z": {
+            "singleInput": {
+                "port": ("con1", 10),
+            },
+            "operations": {
+                "const": "const_flux_pulse",
 
-        #     },
-        # },
+            },
+        },
         # "q5_z": {
         #     "singleInput": {
         #         "port": ("con2", 9),
@@ -1214,15 +1214,15 @@ config = {
         ],
         "octave_octave1_3": [
             {
-                "intermediate_frequency": qubit_IF[1],
-                "lo_frequency": qubit_LO_q2,
+                "intermediate_frequency": qubit_IF[2],
+                "lo_frequency": qubit_LO_q3,
                 "correction": (1, 0, 0, 1),
             }
         ],
         "octave_octave1_4": [
             {
-                "intermediate_frequency": qubit_IF[2],
-                "lo_frequency": qubit_LO_q3,
+                "intermediate_frequency": qubit_IF[1],
+                "lo_frequency": qubit_LO_q2,
                 "correction": (1, 0, 0, 1),
             }
         ],
